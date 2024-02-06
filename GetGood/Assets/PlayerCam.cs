@@ -4,26 +4,32 @@ using UnityEngine;
 
 public class PlayerCam : MonoBehaviour
 {
-    public float sensX;
-    public float sensY;
-
+    [Header("References")]
     public Transform orientation;
+    public Transform player;
+    public Transform playerObj;
+    public Rigidbody rb;
 
-    float xRotation;
-    float yRotation;
+    public float rotationSpeed;
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
-
     private void Update()
     {
-        float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * sensX;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * sensY;
+        //rotate orientation
+        Vector3 viewDirection = player.position - new Vector3(transform.position.x, player.position.y, transform.position.z);
+        orientation.forward = viewDirection.normalized;
 
-        yRotation += mouseX;
-        xRotation -= mouseY;
+        //rotate player object
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+        Vector3 inputDirection = orientation.forward * verticalInput + orientation.right * horizontalInput;
+
+        if (inputDirection != Vector3.zero)
+            playerObj.forward = Vector3.Slerp(playerObj.forward, inputDirection.normalized, Time.deltaTime * rotationSpeed);
+
     }
-
 }
